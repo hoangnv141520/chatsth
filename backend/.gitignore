@@ -1,0 +1,42 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment & secrets
+.env
+.env.*.local
+secrets.yml
+*.key
+
+# Node
+node_modules/
+dist/
+build/
+.cache/
+.npm
+.eslintcache
+.next/
+out/
+
+# Docker
+docker-compose.override.yml
+
+# IDEs & editors
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# Misc build/artifacts
+*.tgz
+*.zip
+*.tar.gz
+*.exe
+*.dll
+*.so
+*.dylib
