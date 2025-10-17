@@ -2,6 +2,10 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import { sendOTP } from "../lib/mailer.js";
+
+
+const otpStore = new Map();
 
 export const signup = async (req, res) => {
   const { fullName, email, password } = req.body;
@@ -27,24 +31,28 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
 
-    if (newUser) {
-      // generate jwt token here
-      generateToken(newUser._id, res);
-      await newUser.save();
+    await newUser.save();
 
-      res.status(201).json({
-        _id: newUser._id,
-        fullName: newUser.fullName,
-        email: newUser.email,
-        profilePic: newUser.profilePic,
-      });
-    } else {
-      res.status(400).json({ message: "Invalid user data" });
-    }
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    otpStore.set(email, { otp, expires: Date.now() + 5 * 60 * 1000 });
+    await sendOTP(email, otp);
+    res.status(200).json({ message: "Đăng ký thành công, kiểm tra email để xác thực." });
   } catch (error) {
     console.log("Error in signup controller", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
+};
+
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
+  const record = otpStore.get(email);
+  if (!record) return res.status(400).json({ message: "OTP không tồn tại" });
+  if (record.expires < Date.now()) return res.status(400).json({ message: "OTP đã hết hạn" });
+  if (record.otp != otp) return res.status(400).json({ message: "OTP sai" });
+
+  await User.updateOne({ email }, { isVerified: true });
+  otpStore.delete(email);
+  res.json({ message: "Xác thực thành công" });
 };
 
 export const login = async (req, res) => {
