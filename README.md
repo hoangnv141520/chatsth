@@ -99,4 +99,3 @@ chatsth/
 │   └── package.json
 └── README.md\
 
-⭐ Nếu bạn thấy dự án hữu ích, hãy nhấn **Star** để ủng hộ nhé!
